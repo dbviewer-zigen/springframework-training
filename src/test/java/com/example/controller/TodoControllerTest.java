@@ -14,67 +14,84 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringJUnitConfig
-@WebAppConfiguration  // WebApplicationContextをテストに統合
+@WebAppConfiguration // WebApplicationContextをテストに統合
 // @ContextConfiguration("classpath:applicationContext.xml")
 // @ContextConfiguration("classpath:applicationContext.xml")
-@ContextConfiguration(locations = {"classpath:test-applicationContext.xml"})
+@ContextConfiguration(locations = { "classpath:test-applicationContext.xml" })
 public class TodoControllerTest {
 
-    @Autowired
-    private WebApplicationContext wac;
+        @Autowired
+        private WebApplicationContext wac;
 
-    private MockMvc mockMvc;
+        private MockMvc mockMvc;
 
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-    }
+        @BeforeEach
+        public void setup() {
+                this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+        }
 
-    @Test
-    public void testCreateTodo() throws Exception {
-        mockMvc.perform(post("/todos/create")
-                        .param("description", "Test TODO")
-                        .param("completed", "false"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/todos"));
-    }
+        @Test
+        public void testGetDefault() throws Exception {
+                // mockMvc.perform(get("/")
+                // .param("description", "Test TODO")
+                // .param("completed", "false"))
+                // .andExpect(status().is3xxRedirection())
+                // .andExpect(redirectedUrl("/todos"));
 
-    @Test
-    public void testGetTodo() throws Exception {
-        mockMvc.perform(post("/todos/create")
-                        .param("description", "Test TODO")
-                        .param("completed", "false"))
-                .andExpect(status().is3xxRedirection());
+                // root
+                mockMvc.perform(get("/"))
+                                .andExpect(status().isOk())
+                                .andExpect(view().name("hello"))
+                                .andExpect(model().attributeExists("message"))
+                                .andExpect(model().attribute("message", "Hello World"));
 
-        mockMvc.perform(get("/todos/1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("todoDetails"))
-                .andExpect(model().attributeExists("todo"));
-    }
+        }
 
-    @Test
-    public void testUpdateTodo() throws Exception {
-        mockMvc.perform(post("/todos/create")
-                        .param("description", "Test TODO")
-                        .param("completed", "false"))
-                .andExpect(status().is3xxRedirection());
+        @Test
+        public void testCreateTodo() throws Exception {
+                mockMvc.perform(post("/todos/create")
+                                .param("description", "Test TODO")
+                                .param("completed", "false"))
+                                .andExpect(status().is3xxRedirection())
+                                .andExpect(redirectedUrl("/todos"));
+        }
 
-        mockMvc.perform(post("/todos/update/1")
-                        .param("description", "Updated TODO")
-                        .param("completed", "true"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/todos"));
-    }
+        @Test
+        public void testGetTodo() throws Exception {
+                mockMvc.perform(post("/todos/create")
+                                .param("description", "Test TODO")
+                                .param("completed", "false"))
+                                .andExpect(status().is3xxRedirection());
 
-    @Test
-    public void testDeleteTodo() throws Exception {
-        mockMvc.perform(post("/todos/create")
-                        .param("description", "Test TODO")
-                        .param("completed", "false"))
-                .andExpect(status().is3xxRedirection());
+                mockMvc.perform(get("/todos/1"))
+                                .andExpect(status().isOk())
+                                .andExpect(view().name("todoDetails"))
+                                .andExpect(model().attributeExists("todo"));
+        }
 
-        mockMvc.perform(get("/todos/delete/1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/todos"));
-    }
+        @Test
+        public void testUpdateTodo() throws Exception {
+                mockMvc.perform(post("/todos/create")
+                                .param("description", "Test TODO")
+                                .param("completed", "false"))
+                                .andExpect(status().is3xxRedirection());
+
+                mockMvc.perform(post("/todos/update/1")
+                                .param("description", "Updated TODO")
+                                .param("completed", "true"))
+                                .andExpect(status().is3xxRedirection())
+                                .andExpect(redirectedUrl("/todos"));
+        }
+
+        @Test
+        public void testDeleteTodo() throws Exception {
+                mockMvc.perform(post("/todos/create")
+                                .param("description", "Test TODO")
+                                .param("completed", "false"))
+                                .andExpect(status().is3xxRedirection());
+
+                mockMvc.perform(get("/todos/delete/1"))
+                                .andExpect(status().is3xxRedirection())
+                                .andExpect(redirectedUrl("/todos"));
+        }
 }
